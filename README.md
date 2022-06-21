@@ -2,7 +2,7 @@
 Concert Tape Info File Trimmer
 
 Introduction:
-I created this program as a way to trim the info files that come with many concert tapes and bootlegs (the kind traded around on sites like etree, lossless legs, and the like). When you download a show, it usually comes with a info file like this:
+I created this program as a way to trim the info files that come with many concert tapes and bootlegs (the kind traded around on sites like etree, lossless legs, and the like). These trimmed files can then be used with a program like MP3Tag to tag the audio files with proper song titles. When you download a show, it usually comes with a info file like this:
 
 ```
 Grateful Dead
@@ -47,4 +47,8 @@ I have experience in Java, CPP, Python and a bit of C. Shockingly, while these l
 
 While this would make it crossplatform, it is again pretty user unfriendly. You'd have to manually navigate to the path of the txt file, which if you store tapes on an external drive and several folders deep, it's a huge pain.
 
-So, it left me with learning powershell. Which supports native file choosers, and regex matching and outputting.
+So, it left me with learning Powershell. Which supports native file choosers, and regex matching and outputting. So that crosses off the two checkboxes. Much of the code was found from searching around the internet on how to get several features I wanted implemented in PS. Much was from Microsofts documentation, but I used this to fix an issue with Windows not liking paths with hard brackets in them. https://stackoverflow.com/questions/64770913/get-content-error-cannot-bind-argument-to-parameter-path-because-it-is-null.
+
+In this repo is the Powershell script, and an EXE which is the script compiled into an executable file using PS2EXE. One small issue I've found is that if you have Powertoys installed, an error will pop up with the enhanced file preview PT includes with it. This might stop the program from proceeding, but closing and opening again fixes that. It won't stop the code from running to my knowledge.
+
+This script works with basically every kind of info file I have thrown at it. It might match some extraneous lines, which can be removed manually, since I don't know of a way to trim those out without impacting the tracklist.
