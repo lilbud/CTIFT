@@ -1,10 +1,10 @@
 ﻿Clear-Host
 function Menu-Driver() {
    
-    Write-Host "######################################"
-    Write-Host "#   Concert Tape Info File Trimmer   #"
-    Write-Host "#             by: Lilbud             #"
-    Write-Host "######################################"
+    Write-Host "###########################################"
+    Write-Host "#   Concert Tape Info File Trimmer v1.1   #"
+    Write-Host "#             by: Lilbud                  #"
+    Write-Host "###########################################"
     Write-Host "`nOptions:"
     Write-Host "`n[1] Trim a Text File`n[0] Exit Script"
 }
@@ -51,7 +51,7 @@ do {
         
         $prefix = Read-Host "`nEnter Line Prefix (Any Characters Before Disc/Track Numbers - ex. d1t01)" # (\(|\[)
         
-        $firstTrim = $content -match "^$prefix[0-9]" -replace "(\(|\[)[0-9]{0,2}\:([0-9]{2}\.[0-9]{0,2}|[0-9]{2})(\)|\])","" -replace "\*","" -replace "(.*flac|.*shn)", "".TrimEnd()
+        $firstTrim = $content -match "^$prefix[0-9]" -replace "(([0-9]{0,2}\:[0-9]{0,2})|([0-9]{0,2}\:[0-9]{0,2}\.[0-9]{0,2}))","" -replace "((\(|\[)|(\)|\]))","" -replace "\*","" -replace "(.*flac|.*shn)", "".TrimEnd()
         
         echo "`nFile Preview (Including Any Lines with Segue Arrows):`n"
         echo $firstTrim | select -First 3
