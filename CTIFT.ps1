@@ -2,18 +2,18 @@
 function Menu-Driver() {
    
     Write-Host "###########################################"
-    Write-Host "#   Concert Tape Info File Trimmer v1.1   #"
+    Write-Host "#   Concert Tape Info File Trimmer v1.2   #"
     Write-Host "#             by: Lilbud                  #"
     Write-Host "###########################################"
     Write-Host "`nOptions:"
-    Write-Host "`n[1] Trim a Text File`n[0] Exit Script"
+    Write-Host "`n[1] Trim a Text File (Opens Windows File Explorer)`n[2] Trim a Text File (Enter Path Manually)`n[0] Exit Script"
 }
 function Open-File($initialDirectory = "") {
 
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
  
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $OpenFileDialog.initialDirectory = $initialdirectory
+    $OpenFileDialog.initialDirectory = $initialDirectory
     $OpenFileDialog.filter = "TXT (*.txt)| *.txt"
     
     if ($OpenFileDialog.ShowDialog() -eq 'OK') {
@@ -23,31 +23,25 @@ function Open-File($initialDirectory = "") {
 function Save-File {
     param(
         $output,
-        $fname
+        $fname,
+        $directory
     )     
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
     
     $SaveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
-    $SaveFileDialog.initialDirectory = $initialDirectory
+    $SaveFileDialog.initialDirectory = $directory
     $SaveFileDialog.FileName = $fname
     $SaveFileDialog.filter = "TXT (*.txt)| *.txt"
     $SaveFileDialog.ShowDialog() | Out-Null
     $output.TrimEnd() > $SaveFileDialog.FileName
-} 
-
-do {
-    Menu-Driver
-    do {
-        $menuAnswer = Read-Host "`nWhat Would You Like to Do?"
-    } until ($menuAnswer -ne "")
-    
-    if ($menuAnswer -eq "0") {
-        Exit
-    } else {
-        $file = Open-File
+}
+function File-Handling {
+        param(
+            $file
+        )
         $content = Get-Content -LiteralPath $file
         $filename = [System.IO.Path]::GetFileNameWithoutExtension($file)
-        $foldername = [System.IO.Path]::GetDirectoryName($file)
+        $foldername = [System.IO.Path]::GetDirectoryName($file)        
         
         $prefix = Read-Host "`nEnter Line Prefix (Any Characters Before Disc/Track Numbers - ex. d1t01)" # (\(|\[)
         
@@ -78,7 +72,7 @@ do {
                 $wanted_arrow = Read-Host "`nEnter the Desired Type of Segue Arrow"     
                 $trimmed_Arrows = $trimmed -replace "( *)$orig_arrow", " $wanted_arrow"
                 
-                Save-File $trimmed_Arrows $filename"_trimmed"
+                Save-File $trimmed_Arrows $filename"_trimmed" $foldername
 
                 do {
                     $arrowremove = Read-Host "`nDo You Wish to Output a Copy With No Arrows? (y or n)"
@@ -88,7 +82,7 @@ do {
                     $trimmed_NoArrows = $trimmed_Arrows -replace "$wanted_arrow", ""           
                 } 
         
-                Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows"
+                Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows" $foldername
                 
             } else {             
                 do {
@@ -99,11 +93,29 @@ do {
                     $trimmed_NoArrows = $trimmed -replace "$orig_arrow", "" 
                 }
         
-                Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows"
-                Save-File $trimmed $filename"_trimmed_Arrows"
+                Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows" $foldername
+                Save-File $trimmed $filename"_trimmed_Arrows" $foldername
             }
         } else {
-            Save-File $trimmed $filename"_trimmed"
+            Save-File $trimmed $filename"_trimmed" $foldername
         }
+        
+}
+
+do {
+    Menu-Driver
+    do {
+        $menuAnswer = Read-Host "`nWhat Would You Like to Do?"
+    } until ($menuAnswer -ne "")
+    
+    if ($menuAnswer -eq "0") {
+        Exit
+    } elseif ($menuAnswer -eq "1") {
+        $file = Open-File
+        File-Handling $file
+    } elseif ($menuAnswer -eq "2") {
+        $path = Read-Host "Enter Path to Info File"
+        $file = $path -replace "`"",""
+        File-Handling $file
 } 
 }until ($menuAnswer -eq "0")
