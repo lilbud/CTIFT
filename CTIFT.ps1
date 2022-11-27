@@ -6,19 +6,7 @@ function Menu-Driver() {
     Write-Host "#             by: Lilbud                  #"
     Write-Host "###########################################"
     Write-Host "`nOptions:"
-    Write-Host "`n[1] Trim a Text File (Opens Windows File Explorer)`n[2] Trim a Text File (Enter Path Manually)`n[0] Exit Script"
-}
-function Open-File($initialDirectory = "") {
-
-    [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
- 
-    $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $OpenFileDialog.initialDirectory = $initialDirectory
-    $OpenFileDialog.filter = "TXT (*.txt)| *.txt"
-    
-    if ($OpenFileDialog.ShowDialog() -eq 'OK') {
-        return $OpenFileDialog.FileName
-    }
+    Write-Host "`n[1] Trim a Text File (Enter Path Manually)`n[0] Exit Script"
 }
 function Save-File {
     param(
@@ -79,22 +67,20 @@ function File-Handling {
                 } until (($arrowremove -eq "y") -or ($arrowremove -eq "n"))
         
                 if ($arrowremove -eq "y") {
-                    $trimmed_NoArrows = $trimmed_Arrows -replace "$wanted_arrow", ""           
+                    $trimmed_NoArrows = $trimmed_Arrows -replace "$wanted_arrow", ""
+                    Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows" $foldername         
                 } 
-        
-                Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows" $foldername
-                
+
             } else {             
                 do {
                     $arrowremove1 = Read-Host "`nDo You Wish to Output a Copy With No Arrows? (y or n)"
                 } until (($arrowremove1 -eq "y") -or ($arrowremove1 -eq "n"))
         
                 if ($arrowremove1 -eq "y") {
-                    $trimmed_NoArrows = $trimmed -replace "$orig_arrow", "" 
-                }
-        
-                Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows" $foldername
-                Save-File $trimmed $filename"_trimmed_Arrows" $foldername
+                    $trimmed_NoArrows = $trimmed -replace "$orig_arrow", ""
+                    Save-File $trimmed_NoArrows $filename"_trimmed_NoArrows" $foldername
+                    Save-File $trimmed $filename"_trimmed_Arrows" $foldername
+                }     
             }
         } else {
             Save-File $trimmed $filename"_trimmed" $foldername
@@ -111,10 +97,7 @@ do {
     if ($menuAnswer -eq "0") {
         Exit
     } elseif ($menuAnswer -eq "1") {
-        $file = Open-File
-        File-Handling $file
-    } elseif ($menuAnswer -eq "2") {
-        $path = Read-Host "Enter Path to Info File"
+        $path = Read-Host "Enter Path to Info File (Can Also Drag and Drop File on Top of Window)"
         $file = $path -replace "`"",""
         File-Handling $file
 } 
