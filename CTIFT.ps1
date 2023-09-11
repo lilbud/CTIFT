@@ -1,13 +1,13 @@
-﻿Clear-Host
-function Menu_Driver() {
-	Write-Host "`n"
-	Write-Host "###########################################"
-	Write-Host "#   Concert Tape Info File Trimmer v2.0   #"
-	Write-Host "#               By: Lilbud                #"
-	Write-Host "###########################################"
-	Write-Host "`n# Options:"
-	Write-Host "`n[1] Trim a Text File (Enter Path Manually)`n[0] Exit Script"
-}
+# CTIFT - Concert Tape Info File Trimmer
+# Created by Lilbud
+
+Clear-Host
+
+# ENTER DESIRED SEGUE ARROW HERE
+$segue_arrow = ">"
+
+# IF YOU WANT TO OUTPUT A FILE WITH NO ARROWS, set to $true
+$outputArrowless = $false
 
 function File_Handling {
 	param(
@@ -16,59 +16,53 @@ function File_Handling {
 	$content = Get-Content -LiteralPath $file
 	$fileName = [System.IO.Path]::GetFileNameWithoutExtension($file)
 	$folderName = [System.IO.Path]::GetDirectoryName($file)
-	$prefix = Read-Host "`n> Enter Line Prefix (Any Characters Before Disc/Track Numbers - ex. d1t01)" # (\(|\[) 
-	$firstTrim = $content -match "^$prefix[0-9]" -replace "(([0-9]{0,2}\:[0-9]{0,2}.[0-9]{0,2})|([0-9]{0,2}\:[0-9]{0,2}))", "" -replace "\*", "" -replace "(.*flac|.*shn)", "" -replace "\($|\)$", "" -replace "\[$|\]$", "".TrimEnd()
-        
-	Write-Output "`n# File Preview (Including Any Lines with Segue Arrows):`n"
-	Write-Output $firstTrim | Select-Object -First 3
-	Write-Output ($firstTrim -match ">.*$") | Select-Object -First 3
-        
-	$charNum = Read-Host "`n> Enter Number of Characters to Trim off Beginning of Line"
-	$trimmed = $firstTrim -replace "(^.{$charNum})", ""
-        
-	do {
-		$arrowCheck = Read-Host "`n# Are There Segue Arrows (>, ->, -->, etc.) in the Tracklist?`n[1] Yes`n[2] No`n> Enter Choice"
-	} until (($arrowCheck -eq "1") -or ($arrowCheck -eq "2"))
-            
-	switch ($arrowCheck) {
-		1 {
-			$arrowOrig = Read-Host "`n> Enter the Original Segue Arrow"
-			$arrowReplace = Read-Host "`n# Do You Wish to Replace the Existing Segue Arrows?`n[1] Yes`n[2] No`n> Enter Choice"
+	
+	# attempt to guess leading characters before song names
+	# lines usually start with either number, 'd', 't'
 
-			switch ($arrowReplace) {
-				1 {
-					#replace arrows
-					$arrowNew = Read-Host "`nEnter the Desired Segue Arrow"
-					$trimmed -replace "( *)$($arrowOrig)", " $($arrowNew)" | Out-File -FilePath "$($folderName)\$($fileName)_trim_arrows.txt"
-					$trimmed -replace "( *)$($arrowOrig)( *)", "" | Out-File -FilePath "$($folderName)\$($fileName)_trim_noArrows.txt"
-				}
-				2 {
-					#don't replace arrows   
-					$trimmed.Trim() | Out-File -FilePath "$($folderName)\$($fileName)_trim_arrows.txt"
-				}
-			}
-		} 
-		2 {
-			#no arrows
-			$trimmed.Trim() | Out-File -FilePath "$($folderName)\$($fileName)_trim_noArrows.txt"
-		}
-	}  
+	# regex is hell
+	$pattern = "^(d|t|s)*\d{1,3}\.* *-* *((dt*\d{1,2}\.* *|t*\d{1,2}\.* *|s*\d{1,2}\.* *| *)*\d{1,2}\.*)* *-* *(\/)*"
+	$times = "(\(|\[)*\d{1,2}:\d{1,2}.\d{0,2}(\)|\])*"
+
+	# for any other patterns to remove
+	$other = "(\(cut\)|.*(flac|---xx|files|khz|wav|AUD|@|missing).*|\d{1,4}.\d{1,2}.\d{2,4})"
+
+	# TODO - add case for "dusbourne? weird tracklisting"
+
+	if ($folderName -match ".*(dusborne|GEMS).*") {
+		$pattern = "^(\d{3})* *-* *gd\d{2}-\d{2}-\d{2}(d|s)\d{1,2}t\d{2,3}:* *-* *"
+		$trimmed = $content.trim() -match $pattern -replace "$pattern", "" -replace " *-*>", " $segue_arrow" -replace "tuning", "Tuning" -replace "intro", "Intro" -replace "\s+", " " -replace "(%|;|\*+|\/\/)", ""
+	} else {
+		$trimmed = $content.trim() -match $pattern -notmatch $other -replace "($pattern|$times|$other)", "" -replace " *-*>", " $segue_arrow" -replace "tuning", "Tuning" -replace "intro", "Intro" -replace "\s+", " " -replace "(%|;|\*+|\/\/)", ""
+	}
+
+	$trimmed.trim() | Out-File -FilePath "$($folderName)\$($fileName)_trimmed.txt"
+
+	if ($outputArrowless -eq $true) {
+		$trimmed.trim() | Out-File -FilePath "$($folderName)\$($fileName)_trimmed_noArrows.txt"
+	}
+
+	Set-Clipboard -value "$($folderName)\$($fileName)_trimmed.txt"
+	Write-Host "Trimmed File Saved, Path Copied to Clipboard"
+	
 }
 
 do {
-	Menu_Driver
-	do {
-		$menuAnswer = Read-Host "`n> What Would You Like to Do?"
-	} until ($menuAnswer -ne "")
-    
-	switch ($menuAnswer) {
-		1 {
-			$path = Read-Host "`n> Enter Path to Info File (Can Also Drag and Drop File on Top of Window)"
+	if (-not($args[0])) {
+		$path = Read-Host "`n> Enter Path to Info File (or 0 to exit)"
+		if ($path -ne "0") {
 			$file = $path -replace "`"", ""
-			File_Handling $file ; break 
+			Write-Host $file
+			File_Handling $file
+		} else {
+			exit
 		}
-		0 { 
-			Exit ; break 
-		}   
+	} else {
+		Write-Host $args[0]
+		File_Handling $args[0]
 	}
-}until ($menuAnswer -eq "0")
+} Until ($path -eq "0")
+
+# $path = Read-Host "`n> Enter Path to Info File (Can Also Drag and Drop File on Top of Window)"
+# $file = $path -replace "`"", ""
+# File_Handling $file
