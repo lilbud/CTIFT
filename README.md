@@ -1,6 +1,22 @@
 # CTIFT
 Concert Tape Info File Trimmer
 
+# Changelog
+2023-09-11 (v3.0) - Updated script to be semi-automatic. The user is no longer prompted to input the needed values. Instead, a hellish regex pattern is used instead. It works with no issue roughly 95% of the time. Occasionally some issues will pop up which really aren't easy to fix (typos in the original file for one), and putting in a case for every single fix would be ridiculous. Some editing afterwards might be needed. The script also has a boolean flag to enable exporting a file with no arrows (->, -->, >, etc.), mainly useful if you want to batch rename files.
+
+2023-08-04 (v2.0) - Rewrote script to make it much cleaner and easier to use. Auto exports files to same directory as inputted info file. Reason for the big jump in version numbers is because I basically rewrote the script from scratch, and felt it changed enough to warrant it. Also removed the .exe file, as it was unnecessary.
+
+2023-01-07 (v1.4) - small fixes to regex
+
+2022-11-27 (v1.3?) - The pop-up to select a file is now gone, it was quite buggy and at times would disappear behind other windows (and no taskbar icon to find it). Replaced with just a simple "enter file path here" prompt.
+
+2022-09-14 (v1.2) - small fixes
+
+2022-07-24 (v1.1) - regex files
+
+2022-07-21 (v1.0) - initial release
+
+# Info:
 Introduction:
 I created this program as a way to trim the info files that come with many concert tapes and bootlegs (the kind traded around on sites like etree, lossless legs, and the like). These trimmed files can then be used with a program like MP3Tag to tag the audio files with proper song titles. When you download a show, it usually comes with a info file like this:
 
@@ -51,4 +67,5 @@ So, it left me with learning Powershell. Which supports native file choosers, an
 
 In this repo is the Powershell script, ~~and an EXE which is the script compiled into an executable file using PS2EXE~~. One small issue I've found is that if you have Powertoys installed, an error will pop up with the enhanced file preview PT includes with it. This might stop the program from proceeding, but closing and opening again fixes that. It won't stop the code from running to my knowledge.
 
-This script works with basically every kind of info file I have thrown at it. It might match some extraneous lines, which can be removed manually, since I don't know of a way to trim those out without impacting the tracklist.
+~~This script works with basically every kind of info file I have thrown at it. It might match some extraneous lines, which can be removed manually, since I don't know of a way to trim those out without impacting the tracklist.~~
+Script works with most files that i've tested. I'm going through my show collection and any needed fixes are added as I go. Can't catch everything and some things might need manual editing, but it works no issue on most things.
