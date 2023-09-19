@@ -2,6 +2,8 @@
 Concert Tape Info File Trimmer
 
 # Changelog
+2023-09-19 (v3.0) - Fixed quite a bit of the Regex patterns. For some reason it was erroring out on some files or just outputting empty files even if the regex pattern matched lines. Also added some patterns to skip checksum lines and whatnot. Dusborne info files should work now, but still a little screwy on some. 
+
 2023-09-11 (v3.0) - Updated script to be semi-automatic. The user is no longer prompted to input the needed values. Instead, a hellish regex pattern is used instead. It works with no issue roughly 95% of the time. Occasionally some issues will pop up which really aren't easy to fix (typos in the original file for one), and putting in a case for every single fix would be ridiculous. Some editing afterwards might be needed. The script also has a boolean flag to enable exporting a file with no arrows (->, -->, >, etc.), mainly useful if you want to batch rename files.
 
 2023-08-04 (v2.0) - Rewrote script to make it much cleaner and easier to use. Auto exports files to same directory as inputted info file. Reason for the big jump in version numbers is because I basically rewrote the script from scratch, and felt it changed enough to warrant it. And at various points I cba to make sure I did the version numbers right, also explains the jumps.
