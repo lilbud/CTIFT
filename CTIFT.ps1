@@ -21,38 +21,39 @@ function File_Handling {
 	# lines usually start with either number, 'd', 't'
 
 	# regex is hell
-	$times = "(\(|\[)*\d{1,2}:\d{1,2}.\d{0,2}(\)|\])*"
+	$times = "(\(|\[)*\d{1,2}:\d{1,2}\.\d{0,2}(\)|\])*"
 
 	# for any other patterns to remove
-	$other = "(\(cut\)|.*(flac|---xx|files|khz|wav|AUD|@|missing).*|\d{1,4}.\d{1,2}.\d{2,4})"
+	$other = "(\(cut\)|.*(flac|---xx|files|khz|wav|AUD|@|missing|shn).*|\d{1,4}\.\d{1,2}\.\d{2,4}|\[\d{1,2}\])"
 
 	# TODO - add case for "dusbourne? weird tracklisting"
 
 	if ($folderName -match ".*dusborne.*") {
-		$pattern = "^\d{3} - (gd)\d{2}-\d{2}-\d{2}(d|s)\d{1}(t)\d{2} - "
-		$trimmed = $content.trim() -match $pattern -notmatch "Source Matrix" -replace $pattern, "" -replace " *-*>", " $segue_arrow" -replace "tuning", "Tuning" -replace "intro", "Intro" -replace "\s+", " " -replace "(%|;|\*+|\/\/)", ""
+		$pattern = "^\d{3} - (gd)\d{2}-\d{2}-\d{2}[ds]\d{1,2}[t]\d{1,2} - "
+		$trimmed = $content.trim() -match $pattern -notmatch "Source Matrix" -replace $pattern, "" -replace " *-*>", " $segue_arrow" -replace "tuning", "Tuning" -replace "intro", "Intro" -replace "\s+", " " -replace "(%|;|\*+|/)", ""
 	} else {
-		$pattern = "^([dts]|)\d{1,3}-\d{1,2}\. -* *(([dts]*\d{1,2}\. *| *)*\d{1,2}\.)* *-* *(\/)*"
-		$trimmed = $content.trim() -match $pattern -notmatch $other -replace "($pattern|$times|$other)", "" -replace " *-*>", " $segue_arrow" -replace "tuning", "Tuning" -replace "intro", "Intro" -replace "\s+", " " -replace "(%|;|\*+|\/\/)", ""
+		$pattern = "^[dts]*\d{1,3}.([dts]*\d{1,2}[ts]*\d{1,2})*(-\d{1,2})* *-* *"
+		$trimmed = $content.trim() -match $pattern -replace "($pattern|$times|$other)", "" -replace " *-*>", " $segue_arrow" -replace "tuning", "Tuning" -replace "intro", "Intro" -replace "\s+", " " -replace "(%|;|\*+|/)", ""
 	}
 
-	Write-Host $trimmed
+	#write-host $trimmed
 
-	# try {
-	# 	Write-Host $trimmed.trim()
+	try {
+		Write-Host $trimmed.trim()
 
-	# 	$trimmed.trim() | Out-File -FilePath "$($folderName)\$($fileName)_trimmed.txt"
+		$trimmed.trim() | Out-File -FilePath "$($folderName)\$($fileName)_trimmed.txt"
 
-	# 	if ($outputArrowless -eq $true) {
-	# 		$trimmed.trim() | Out-File -FilePath "$($folderName)\$($fileName)_trimmed_noArrows.txt"
-	# 	}
+		if ($outputArrowless -eq $true) {
+			$trimmed.trim() | Out-File -FilePath "$($folderName)\$($fileName)_trimmed_noArrows.txt"
+		}
 
-	# 	Set-Clipboard -value "$($folderName)\$($fileName)_trimmed.txt"
-	# 	Write-Host "Trimmed File Saved, Path Copied to Clipboard"
-	# }
-	# catch {
-	# 	Write-Host "ERROR: Processing Failed"
-	# }
+		Set-Clipboard -value "$($folderName)\$($fileName)_trimmed.txt"
+		Write-Host "Trimmed File Saved, Path Copied to Clipboard"
+	}
+	catch {
+		Write-Host "ERROR: Processing Failed, closing program"
+		exit
+	}
 
 }
 
